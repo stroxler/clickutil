@@ -1,0 +1,35 @@
+# clickutil - making click even better
+
+Python's `click` package is an awesome tool for building command-line
+interfaces, but there are a few things about how it works that aren't
+in line with how I like building them:
+  * `click.option` combines boolean flags with options that take
+    arguments, and also combines required versus defaulted options.
+    By creating a single function that does all of these, click makes
+    it easy to accidentally forget to `show-default`, and requires
+    specific combinations of kwargs. I've defined several wrappers
+    around `click.option` for typical use cases: `boolean_flag`,
+    `default_option`, and `required_option` are all separate,
+    and all fo them use their arguments explicitly so that it's
+    harder to mis-use them.
+  * I like to make my command line endpoints callable from python
+    (so that if another package uses my package, it can call the same functions
+    almost as if it were using the command line).  But by relying on
+    decorators, click makes it so that you can't access the underlying function
+    directly, because by the time the decorators finish evaluating you are left
+    with a no-args function that gets all its input from `sys.stin`. The `call`
+    decorator allows you to instead use a placeholder function (whose name is
+    arbitrary) as the target of the decorator, while passing the actual call to
+    a different function.
+  * Especially as the developer of command-line tools, I often want 
+    to be able to use python debuggers when I hit errors.  So there's a
+    `debug` decorator that
+      (a) adds a `--debug/--no-debug` flag to the
+      (b) takes the default value of `debug` as an argument, which allows you
+          to have a dev configuration where it defaults to true and a user
+          configuration where it defaults to false.
+      (c) has a configurable timeout before you hit the debugger, so that you
+          can glance at any errors and keyboard interrupt if you don't need to
+          debug.
+
+This project is brand new. More docs, and some unit tests, to come.
