@@ -1,7 +1,6 @@
-import inspect
 import click
 
-from .wrapping import update_wrapper
+from inspectcall import update_wrapper, get_argspec
 
 
 EXISTING_FILE = click.Path(exists=True, dir_okay=False, file_okay=True)
@@ -22,19 +21,15 @@ def default_option(flag, short_flag, type, default, help):
     help: str
     """
     if short_flag is None:
-        click_decorator =  click.option(flag,
-                                        type=type, default=default,
-                                        help=help, show_default=True)
+        click_decorator = click.option(flag,
+                                       type=type, default=default,
+                                       help=help, show_default=True)
     else:
         click_decorator = click.option(flag, short_flag,
                                        type=type, default=default,
                                        help=help, show_default=True)
-    def decorator(f):
-        wrapper = click_decorator(f)
-        update_wrapper(wrapper, f)
-        return wrapper
 
-    return decorator
+    return _mk_decorator(click_decorator)
 
 
 def required_option(flag, short_flag, type, help):
@@ -105,7 +100,7 @@ def option(flag, short_flag, type, help):
         if has_default:
             return default_option(flag, short_flag, type, default, help)(f)
         else:
-            return required_option(flag, short_flag, type, default, help)(f)
+            return required_option(flag, short_flag, type, help)(f)
 
     return decorator
 
@@ -135,15 +130,21 @@ def boolean(flag, help):
         if default not in (True, False):
             raise ValueError('Default value %r for variable %r is not boolean'
                              % (default, varname))
-        return boolean_flag(flag, type, default, help)(f)
+        return boolean_flag(flag, default, help)(f)
 
     return decorator
 
 
 def _mk_decorator(click_decorator):
     """
-    Add a call to wrapping.update_wrapper to the output of a click decorator,
-    in order to persist extra metadata.
+    Add a call to inspectcall.update_wrapper to the output of a click
+    decorator, in order to persist extra metadata.
+
+    PARAMETERS
+    ----------
+    click_decorator : function
+        A click decorator function, for example the return value to
+        a call to `click.optioni`
 
     """
     def decorator(f):
@@ -157,29 +158,44 @@ def get_arg_default(f, varname):
     """
     Return a (bool, object) tuple, where the first element indicates
     whether the variable with name `varname` has a default value in calls
-    to `f`. The second entry is None if not, and otherwise is the default
-    value.
+    to `f`, and the second entry has the default if there is one.
 
-    In order to use this function, the function must have an
-    __argspec__ field, whose value should be the output of
-    `inspect.getargspec` on the original function (functools.update_wrapper
-    does *not* persist the data inspect uses). The most common case of this
-    is when clickutil.call is used for the bottom decorator, and all
-    of the decorators betweent he active decorator and the clickutil.call
-    decorator are clickutil decorators (which preserve __argspec__)
+    PARAMETERS
+    ----------
+    f : function
+        A function. In order for this to work properly, the output
+        of `inspectcall.get_argspec(f)` needs include the variable you
+        are looking for. This will be true if `f` is a raw function, or
+        the output of any decorator from `clickutil` or `calldecorators`.
+        But many third-party decorators, including those from `click`,
+        clobber the required metadata.
+    varname : str
+        A variable name. Must be one of the regular arguments of `f` (not
+        varargs or packed keywordargs), or else `f` must take a packed
+        keyword argument. In the latter case, we treat all arguments which
+        don't correspond to regular arguments as having no default value.
+
+    RETURNS
+    -------
+    (has_default, default): tuple of (boolean, object)
+        The first entry indicates whether `varname` has a default
+        value in the signature of `f`, and the second is the default
+        value if so, otherwise None.
 
     """
-    f_args = f.__argspec__
-    if varname not in f_args.args:
-        if f_args.keywords is None:
+    f_argspec = get_argspec(f)
+    if varname not in f_argspec.args:
+        if f_argspec.keywords is None:
             raise ValueError('Variable %r not found in spec of func %s'
                              % (varname, f.__name__))
         return (False, None)
     # args and defaults of an argspec are both in the order given. Since
     # we don't really care about the order, the easiest way to line them
     # up is to reverse them
-    varidx = f_args.args[::-1].index(varname)
-    if varidx < len(f_args.defaults):
-        return (True, f_args.defaults[::-1][varidx])
+    if f_argspec.defaults is None:
+        return (False, None)
+    varidx = f_argspec.args[::-1].index(varname)
+    if varidx < len(f_argspec.defaults):
+        return (True, f_argspec.defaults[::-1][varidx])
     else:
         return (False, None)

@@ -36,7 +36,7 @@ def call(f):
 
     """
     def decorator(placeholder):
-        @wraps(f, set_argspec=True)
+        @wraps(f)
         def wrapped(*args, **kwargs):
             return f(*args, **kwargs)
         return wrapped
