@@ -10,13 +10,12 @@ line packages more concise and less buggy.
 Keep access to your python functions by using `clickutil.call`
 --------------------------------------------------------------
 
-A normal click decorator looks something like this:
+A normal click decorator looks something like this::
 
-::
-  @click.command('do-something')
-  @click.option('--an-option', required=True, help='a click option')
-  def do_something(an_option):
-      click.echo(an_option)
+    @click.command('do-something')
+    @click.option('--an-option', required=True, help='a click option')
+    def do_something(an_option):
+        click.echo(an_option)
 
 
 This can be frustrating if you want to expose a public api that is accessible
@@ -26,15 +25,14 @@ arguments and reads `sys.argv` for inputs.
 
 The `clickutil.call` decorator lets you instead decorate a placeholder function
 as calling some function you want as part of your public api, so that the
-original function may still be accessed from python:
+original function may still be accessed from python::
 
-::
-  def do_something(an_option):
-      click.echo(an_option)
+    def do_something(an_option):
+        click.echo(an_option)
 
-  @click.command('do-something')
-  @click.option('--an-option', required=True, help='a click option')
-  def _do_something(): pass
+    @click.command('do-something')
+    @click.option('--an-option', required=True, help='a click option')
+    def _do_something(): pass
 
 
 Add debugging using clickutil.debug
@@ -56,9 +54,8 @@ this is configurable via an argument.
 
 For example, here we debug using `ipdb` after 10 seconds of waiting in the
 event that `do_something` raises an exception. We do so by default, so to
-turn off this behavior you would need to use the `--no-debug` flag:
+turn off this behavior you would need to use the `--no-debug` flag::
 
-::
   import ipdb
 
   @click.command('do-something')
