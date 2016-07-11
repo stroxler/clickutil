@@ -3,7 +3,7 @@ from inspectcall import wraps
 import calldecorators
 
 
-def debug(default_debug=False, delay=3, use_debugger=None):
+def debug(default=False, delay=3, use_debugger=None):
     """
     Add a click handler to drop into a debugger on uncaught
     exceptions. You can toggle this on and off using the
@@ -12,7 +12,7 @@ def debug(default_debug=False, delay=3, use_debugger=None):
 
     PARAMETERS
     ----------
-    default_debug : boolean
+    default : boolean
         Default value of the debug flag.
     delay : int
         How many seconds to wait after printing the stack trace
@@ -29,7 +29,7 @@ def debug(default_debug=False, delay=3, use_debugger=None):
 
         @wraps(f)
         @boolean_flag(
-            '--debug', default=default_debug,
+            '--debug', default=default,
             help='drop into pudb / pdb post-mortem on uncaught errors?'
         )
         def wrapped(debug, *args, **kwargs):
