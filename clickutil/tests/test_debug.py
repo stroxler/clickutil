@@ -35,7 +35,7 @@ def test_debug_not_called_if_no_error():
     @click.command('f')
     @debug(True, delay=0, use_debugger=mock_debugger)
     def f(x=3):
-        print('x = %s' % x)
+        click.echo('x = %s' % x)
 
     result = runner.invoke(f)
     assert result.output.strip() == 'x = 3'

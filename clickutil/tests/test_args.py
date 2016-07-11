@@ -24,9 +24,9 @@ def test_boolean_flag():
                       help="a click flag")
         def f(my_flag):
             if my_flag:
-                print("yes")
+                click.echo("yes")
             else:
-                print("no")
+                click.echo("no")
 
         # help should show up
         result = runner.invoke(f, ['--help'])
@@ -95,9 +95,9 @@ def test_boolean():
         @boolean('--my-flag', 'a click flag')
         def f(my_flag=default_value):
             if my_flag:
-                print("yes")
+                click.echo("yes")
             else:
-                print("no")
+                click.echo("no")
 
         # help should show up
         result = runner.invoke(f, ['--help'])
@@ -180,7 +180,7 @@ def test_required_option():
     @required_option('--my-option', '-mo', int,
                      help="a click option")
     def f(my_option):
-        print(my_option)
+        click.echo(my_option)
 
     run_required_option_suite(f)
 
@@ -190,7 +190,7 @@ def test_option_like_required_option_if_no_default():
     @click.command()
     @option('--my-option', '-mo', int, 'a click option')
     def f(my_option):
-        print(my_option)
+        click.echo(my_option)
 
     run_required_option_suite(f)
 
@@ -245,7 +245,7 @@ def test_default_option():
                     default=42,
                     help="a click option")
     def f(my_option):
-        print(my_option)
+        click.echo(my_option)
 
     run_default_option_test_suite(f)
 
@@ -255,6 +255,6 @@ def test_option_like_default_option_if_default():
     @click.command()
     @option('--my-option', '-mo', int, "a click option")
     def f(my_option=42):
-        print(my_option)
+        click.echo(my_option)
 
     run_default_option_test_suite(f)

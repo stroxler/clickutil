@@ -11,11 +11,12 @@ Keep access to your python functions by using `clickutil.call`
 --------------------------------------------------------------
 
 A normal click decorator looks something like this:
+
 ::
   @click.command('do-something')
   @click.option('--an-option', required=True, help='a click option')
   def do_something(an_option):
-      print(an_option)
+      click.echo(an_option)
 
 
 This can be frustrating if you want to expose a public api that is accessible
@@ -29,7 +30,7 @@ original function may still be accessed from python:
 
 ::
   def do_something(an_option):
-      print(an_option)
+      click.echo(an_option)
 
   @click.command('do-something')
   @click.option('--an-option', required=True, help='a click option')
