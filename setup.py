@@ -40,7 +40,7 @@ setup(name=PACKAGE,
       author_email='steven.troxler@gmail.com',
       license='MIT',
       packages=[PACKAGE],
-      install_requires=['calldecorators>=0.0.3']
+      install_requires=['calldecorators>=0.0.3', 'inspectcall>=0.0.1'],
       tests_require=['pytest'],
       include_package_data=True,
       zip_safe=False)
