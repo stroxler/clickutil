@@ -32,6 +32,7 @@ original function may still be accessed from python::
 
     @click.command('do-something')
     @click.option('--an-option', required=True, help='a click option')
+    @clickutil.call(do_something)
     def _do_something(): pass
 
 
@@ -59,8 +60,8 @@ turn off this behavior you would need to use the `--no-debug` flag::
   import ipdb
 
   @click.command('do-something')
-  @click.debug(default=False, delay=10, use_debugger=ipdb)
-  @click.call(do_something)
+  @clickutil.debug(default=False, delay=10, use_debugger=ipdb)
+  @clickutil.call(do_something)
   def _do_something(): pass
 
 More concise options and flags
