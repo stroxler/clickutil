@@ -1,6 +1,7 @@
 """
 Base decorators for use with clickutil.
 """
+import wrapt
 from inspectcall import wraps
 
 
@@ -36,8 +37,12 @@ def call(f):
 
     """
     def decorator(placeholder):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            return f(*args, **kwargs)
-        return wrapped
+        @wrapt.decorator
+        def make_wrapper(wrapped, instance, args, kwargs):
+            return wrapped(*args, **kwargs)
+
+        wrapper = make_wrapper(f)
+        wrapper.__name__ = placeholder.__name__
+        wrapper.__module__ = placeholder.__module__
+        return wrapper
     return decorator

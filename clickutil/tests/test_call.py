@@ -38,7 +38,6 @@ def test_call():
 
     # check that _f has the docstring, name, and argspec of f
     assert _f.__doc__ == "f documentation", "docstring preserved"
-    assert _f.__name__ == "f", "name preserved"
     assert 'x' in inspectcall.get_argspec(_f).args, "argspec preserved"
     # verify that calls to _f get redirected to f
     expected = 'x is 5'
