@@ -1,6 +1,7 @@
 import click
 
-from inspectcall import update_wrapper, get_argspec
+from .argspec import get_argspec
+from .util import mk_decorator
 
 
 EXISTING_FILE = click.Path(exists=True, dir_okay=False, file_okay=True)
@@ -29,7 +30,7 @@ def default_option(flag, short_flag, type, default, help):
                                        type=type, default=default,
                                        help=help, show_default=True)
 
-    return _mk_decorator(click_decorator)
+    return mk_decorator(click_decorator)
 
 
 def required_option(flag, short_flag, type, help):
@@ -52,7 +53,7 @@ def required_option(flag, short_flag, type, help):
                                        type=type, required=True,
                                        help=help, show_default=True)
 
-    return _mk_decorator(click_decorator)
+    return mk_decorator(click_decorator)
 
 
 def boolean_flag(flag, default, help):
@@ -72,7 +73,7 @@ def boolean_flag(flag, default, help):
     click_flag = '--{0}/--no-{0}'.format(stripped_flag)
     click_decorator = click.option(click_flag, default=default, help=help,
                                    show_default=True)
-    return _mk_decorator(click_decorator)
+    return mk_decorator(click_decorator)
 
 
 def option(flag, short_flag, type, help):
@@ -135,25 +136,6 @@ def boolean(flag, help):
     return decorator
 
 
-def _mk_decorator(click_decorator):
-    """
-    Add a call to inspectcall.update_wrapper to the output of a click
-    decorator, in order to persist extra metadata.
-
-    PARAMETERS
-    ----------
-    click_decorator : function
-        A click decorator function, for example the return value to
-        a call to `click.optioni`
-
-    """
-    def decorator(f):
-        wrapper = click_decorator(f)
-        update_wrapper(wrapper, f)
-        return wrapper
-    return decorator
-
-
 def get_arg_default(f, varname):
     """
     Return a (bool, object) tuple, where the first element indicates
@@ -164,9 +146,9 @@ def get_arg_default(f, varname):
     ----------
     f : function
         A function. In order for this to work properly, the output
-        of `inspectcall.get_argspec(f)` needs include the variable you
+        of `argspec.get_argspec(f)` needs include the variable you
         are looking for. This will be true if `f` is a raw function, or
-        the output of any decorator from `clickutil` or `calldecorators`.
+        the output of any `clickutil` or `wrapt` decorator.
         But many third-party decorators, including those from `click`,
         clobber the required metadata.
     varname : str

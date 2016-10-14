@@ -2,21 +2,6 @@
 Base decorators for use with clickutil.
 """
 import wrapt
-from inspectcall import wraps
-
-
-def with_argspec(f):
-    """
-    Create a decorated version of `f` whose `__argspec__` field is
-    set. This allows users to make use of the clickutil.option and
-    clickutil.boolean decorators, which rely on that field, without
-    using clickutil.call
-
-    """
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        return f(*args, **kwargs)
-    return wrapped
 
 
 def call(f):

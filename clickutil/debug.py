@@ -1,6 +1,6 @@
 from .args import boolean_flag
-from inspectcall import wraps
-import calldecorators
+from .argspec import wraps
+import tdx
 
 
 def debug(default=False, delay=3, use_debugger=None):
@@ -21,7 +21,7 @@ def debug(default=False, delay=3, use_debugger=None):
         to debug after seeing a stack trace and error message.
     use_debugger : {module, None}
         The debugging module to use. If None, then we use the
-        calldecorators defaults: first we try `pudb`, and if it is not
+        tdx defaults: first we try `pudb`, and if it is not
         installed we use `pdb`.
 
     """
@@ -34,7 +34,7 @@ def debug(default=False, delay=3, use_debugger=None):
         )
         def wrapped(debug, *args, **kwargs):
             if debug:
-                return calldecorators.debug(
+                return tdx.decorators.debug(
                     delay=delay,
                     use_debugger=use_debugger
                 )(f)(*args, **kwargs)

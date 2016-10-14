@@ -2,8 +2,8 @@ from __future__ import print_function
 
 import click
 from click.testing import CliRunner
-from inspectcall import get_argspec
 
+from ..argspec import get_argspec
 from ..debug import debug
 
 
