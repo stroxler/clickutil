@@ -258,3 +258,52 @@ def test_option_like_default_option_if_default():
         click.echo(my_option)
 
     run_default_option_test_suite(f)
+
+
+def test_option_with_multiple_type_no_default():
+
+    @click.command()
+    @option('--my-option', '-mo',
+            {'multiple': True, 'type': int}, "a click option")
+    def f(my_option):
+        click.echo(repr(my_option))
+
+    runner = CliRunner()
+
+    # Check whether default exists
+    result = runner.invoke(f, [])
+    assert result.exception is not None
+
+    # Check that [multiple] shows up in the help
+    result = runner.invoke(f, ['--help'])
+    assert '[multiple]' in result.output
+
+    # Check that it will run normally
+    result = runner.invoke(f, ['-mo', '3', '-mo', '4'])
+    assert result.exception is None
+    assert result.output.strip() == '(3, 4)'
+
+    # Check that it still raises on type errors
+    result = runner.invoke(f, ['-mo', 'a'])
+    assert result.exception is not None
+
+
+def test_option_with_multiple_type_yes_default():
+
+    @click.command()
+    @option('--my-option', '-mo',
+            {'multiple': True, 'type': int}, "a click option")
+    def f(my_option=[2, 3]):
+        click.echo(repr(my_option))
+
+    runner = CliRunner()
+
+    # Check that it will run with default
+    result = runner.invoke(f, [])
+    assert result.exception is None
+    assert result.output.strip() == '(2, 3)'
+
+    # Check that it will run normally
+    result = runner.invoke(f, ['-mo', '3', '-mo', '4'])
+    assert result.exception is None
+    assert result.output.strip() == '(3, 4)'

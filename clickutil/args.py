@@ -21,14 +21,15 @@ def default_option(flag, short_flag, type, default, help):
     default: object
     help: str
     """
+    type_info, help = _parse_type(type, help)
     if short_flag is None:
-        click_decorator = click.option(flag,
-                                       type=type, default=default,
-                                       help=help, show_default=True)
+        click_decorator = click.option(flag, default=default,
+                                       help=help, show_default=True,
+                                       **type_info)
     else:
-        click_decorator = click.option(flag, short_flag,
-                                       type=type, default=default,
-                                       help=help, show_default=True)
+        click_decorator = click.option(flag, short_flag, default=default,
+                                       help=help, show_default=True,
+                                       **type_info)
 
     return mk_decorator(click_decorator)
 
@@ -44,14 +45,15 @@ def required_option(flag, short_flag, type, help):
     type: any click arg type
     help: str
     """
+    type_info, help = _parse_type(type, help)
     if short_flag is None:
-        click_decorator = click.option(flag,
-                                       type=type, required=True,
-                                       help=help, show_default=True)
+        click_decorator = click.option(flag, required=True,
+                                       help=help, show_default=True,
+                                       **type_info)
     else:
-        click_decorator = click.option(flag, short_flag,
-                                       type=type, required=True,
-                                       help=help, show_default=True)
+        click_decorator = click.option(flag, short_flag, required=True,
+                                       help=help, show_default=True,
+                                       **type_info)
 
     return mk_decorator(click_decorator)
 
@@ -93,7 +95,16 @@ def option(flag, short_flag, type, help):
     For the sake of flexibility, we do not check the default value's
     type against the declared type.
 
+    The `type` entry must be one of either:
+      - a valid click type
+      - a dict with a 'type' entry and an optional 'multiple' entry
+
+    For example `type` could be:
+      - `click.Choice(['choice_a', 'choice_b'])`
+      - `{'multiple': True, 'type': str}`
+
     """
+
     varname = flag.strip('-').replace('-', '_')
 
     def decorator(f):
@@ -181,3 +192,25 @@ def get_arg_default(f, varname):
         return (True, f_argspec.defaults[::-1][varidx])
     else:
         return (False, None)
+
+
+def _parse_type(type, help):
+    """
+    Convert a clickutil type, which can either be a dict of information
+    or a click type, into a set of click kwargs.
+
+    The reason for this behavior is that some things click controls via
+    combinations of kwargs, such as `count` options and `multiple` options, are
+    actually inherently part of the arg type from clickutil's point of
+    view.
+
+    """
+    if isinstance(type, dict):
+        type_info = {'multiple': type.get('multiple', False),
+                     'type': type.get('type')}
+    else:
+        type_info = {'multiple': False,
+                     'type': type}
+    if type_info['multiple']:
+        help += ' [multiple]'
+    return type_info, help
