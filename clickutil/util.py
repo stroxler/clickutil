@@ -1,4 +1,4 @@
-from argspec import update_wrapper
+from .argspec import update_wrapper
 
 
 def mk_decorator(click_decorator):
