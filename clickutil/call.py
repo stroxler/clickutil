@@ -52,16 +52,16 @@ def use_output(target):
             print(thing)
 
     """
-    def decorator(placeholder):
+    def decorator(printer):
         @wrapt.decorator
         def make_wrapper(wrapped, instance, args, kwargs):
             output = wrapped(*args, **kwargs)
-            placeholder(output)
+            printer(output)
             return output
 
         wrapper = make_wrapper(target)
-        wrapper.__name__ = placeholder.__name__
-        wrapper.__module__ = placeholder.__module__
+        wrapper.__name__ = printer.__name__
+        wrapper.__module__ = printer.__module__
         return wrapper
 
     return decorator
